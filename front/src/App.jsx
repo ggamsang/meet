@@ -2,17 +2,22 @@ import { useState } from "react";
 import "./App.css";
 import { io } from "socket.io-client";
 
+let _socket = null;
 function App() {
   const [connected, setConnected] = useState(false);
-  let _socket = null;
   const init_socket = () => {
-    _socket = io("http://127.0.0.1:3000").on("welcom", (data) => {
+    //_socket = io("http://127.0.0.1:3000").on("welcom", (data) => {
+    _socket = io("").on("welcom", (data) => {
       console.log(data);
-      setConnected();
+      setConnected(true);
     });
   };
-  const send_message = (msg) => {};
+  const send_message = (msg) => {
+    console.log(_socket);
+    _socket.emit("sent", { message: msg });
+  };
 
+  console.log({ connected });
   return (
     <div className="App">
       {!connected ? (
@@ -23,8 +28,14 @@ function App() {
         <>
           connected
           <br />
-          <input type="text" />
-          <button>send</button>
+          <input type="text" id="input-text" />
+          <button
+            onClick={() =>
+              send_message(document.getElementById("input-text").value)
+            }
+          >
+            send
+          </button>
         </>
       )}
     </div>
@@ -32,3 +43,4 @@ function App() {
 }
 
 export default App;
+

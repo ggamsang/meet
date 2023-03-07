@@ -2,11 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 const http = require("http").Server(app);
-const io = require("socket.io")(http, {
-  cors: { origin: "http://127.0.0.1:8080" },
-});
+const io = require("socket.io")(http, process.env.LOCAL ? { cors: { origin: "http://127.0.0.1:8080"}}:{ pingTimeout: 60000,}) ;
 const cors = require("cors");
-
+console.log(process.env.LOCAL);
 app.use(express.static("/home/ubuntu/place/front/dist/"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -22,6 +20,9 @@ app.post("/messages", (req, res) => {
 io.on("connection", (socket) => {
   console.log("a user is connected: ", socket.id);
   socket.emit("welcom", socket.id);
+  socket.on("sent", (data) => {
+    console.log(data);
+  });
 });
 const server = http.listen(3000, () => {
   console.log("server is running on port: ", server.address().port);
